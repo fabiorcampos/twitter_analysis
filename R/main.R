@@ -2,7 +2,6 @@
 library(twitteR)
 library(ggplot2)
 library(quanteda)
-library(dplyr)
 
 ### Twitter Connection
 consumer_key = 'YetGrrFzoeN0UUQfCZoQERsYg'
@@ -13,7 +12,7 @@ access_secret = 'JpO4Wik99qyREddOfi0zdnxhsUdhhv1PhjbL52i4gqoHv'
 setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
 
 ### Search on Twitter
-tweets = searchTwitter("presidente",n=3000,lang="pt",resultType = "recent")
+tweets = searchTwitter(c("bolsonaro","alckimin"),n=3000,lang="pt",resultType = "recent")
 
 ### Convert Data Frame
 tweets_df = twListToDF(tweets)
@@ -35,9 +34,9 @@ table(df$isRetweet)
 ### Top 10 Retweets
 top10 = top_n(df, 10, retweetCount)
 
-
-### Delete Retweet texts
-
+### Remove duplicated rows that is retweet count
+table(duplicated(df$text))
+df = df[!duplicated(df$text),]
 
 ### Clean and organize data
 tokens = df$text 
@@ -45,3 +44,11 @@ tokens = tokens(tokens, what = "word",
                 remove_numbers = TRUE, remove_punct = TRUE,
                 remove_symbols = TRUE, remove_hyphens = TRUE,
                 remove_twitter = TRUE, remove_url = TRUE)
+
+### Clean data and comeback to data.frame
+### separate the main @users. 
+### Create a Corpora and a N-gram to this text
+### Create a Wordcloud. 
+### How to create a model that analysis everyday the same information. 
+
+
