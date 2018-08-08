@@ -5,10 +5,6 @@ library(quanteda)
 library(dplyr)
 
 ### Twitter Connection
-consumer_key = 'YetGrrFzoeN0UUQfCZoQERsYg'
-consumer_secret = 'xb2sXMwcLOP5HNERJBgPw2gCHUPjSSFy0VLhRScgJjfkCaP79K'
-access_token = '293631173-p2Kv4K7BW41D0vNXc5OQgdBR5nCwR4D7pmiiTgyh'
-access_secret = 'JpO4Wik99qyREddOfi0zdnxhsUdhhv1PhjbL52i4gqoHv'
 
 setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
 
