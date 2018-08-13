@@ -50,7 +50,9 @@ tokens = tokens_select(tokens, stopwords("english"),
 
 tokens = tokens_select(tokens, c("lol", "rt"), selection = "remove", padding = FALSE)
 
-### Clean data and comeback to data.frame
+### Insert news columns with Tokens and clean texts
+https://docs.quanteda.io/reference/as.tokens.html
+
 ### separate the main @users. 
 ### Create a Corpora and a N-gram to this text
 ### Create a Wordcloud. 
