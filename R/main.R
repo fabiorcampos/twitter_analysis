@@ -11,7 +11,6 @@ setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
 ### Search on Twitter
 
 terms = c("bolsonaro","alckmin", "Boulos")
-
 tweets = searchTwitter("bolsonaro",n=3000,lang="pt",resultType = "recent")
 
 ### Convert Data Frame
@@ -34,6 +33,7 @@ table(df$isRetweet)
 ### Top 10 Retweets
 top10 = top_n(df, 10, retweetCount)
 top10
+
 ### Remove duplicated rows that is retweet count
 table(duplicated(df$text))
 df = df[!duplicated(df$text),]
@@ -50,12 +50,24 @@ tokens = tokens_select(tokens, stopwords("english"),
 
 tokens = tokens_select(tokens, c("lol", "rt"), selection = "remove", padding = FALSE)
 
-### Insert news columns with Tokens and clean texts
-https://docs.quanteda.io/reference/as.tokens.html
+### Insert news columns with Tokens and clean texts "https://docs.quanteda.io/reference/as.tokens.html"
+df$tokens = as.list(tokens)
 
-### separate the main @users. 
+### separate the retweeters @users. 
+corpora = df$text
+corpora = corpus(corpora)
+corpora = corpus_segment(corpora, pattern = "@*:", extract_pattern = TRUE)
+users = corpora[[1:5]]
+
+### LeftJoin Table of retweeters @users
+names_users = c("texts","_document","idvector","_segid","pattern")
+names(users) = names_users
+df = left_join(df, users, by = "idvector")
+df = df[,-c(10:12)]
+
 ### Create a Corpora and a N-gram to this text
 ### Create a Wordcloud. 
 ### How to create a model that analysis everyday the same information. 
+### Proximity tokens of each candidate
 
 
