@@ -11,7 +11,8 @@ setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
 ### Search on Twitter
 
 terms = c("bolsonaro","alckmin", "Boulos")
-tweets = searchTwitter("bolsonaro",n=3000,lang="pt",resultType = "recent")
+
+tweets = searchTwitter("haddad",n=3000,lang="pt",resultType = "recent")
 
 ### Convert Data Frame
 tweets_df = twListToDF(tweets)
@@ -45,7 +46,7 @@ tokens = tokens(tokens, what = "word",
                 remove_symbols = TRUE, remove_hyphens = TRUE,
                 remove_twitter = TRUE, remove_url = TRUE)
 
-tokens = tokens_select(tokens, stopwords("english"),
+tokens = tokens_select(tokens, stopwords("portuguese"),
                        selection = "remove")
 
 tokens = tokens_select(tokens, c("lol", "rt"), selection = "remove", padding = FALSE)
@@ -65,9 +66,21 @@ names(users) = names_users
 df = left_join(df, users, by = "idvector")
 df = df[,-c(10:12)]
 
-### Create a Corpora and a N-gram to this text
-### Create a Wordcloud. 
-### How to create a model that analysis everyday the same information. 
-### Proximity tokens of each candidate
+### Create a dfm and a N-gram to this text
+tokens_ngr = tokens_ngrams(tokens, n = 1:3)
+dfm = dfm(tokens_ngr, tolower = TRUE, stem = FALSE)
+dfm = convert(dfm, to = "data.frame")
 
+### Identify and score multi-word expressions, or adjacent fixed-length collocations, from text.
+collocation = textstat_collocations(tokens, size = 5, tolower = FALSE)
+head(collocation, 10)
+
+### Create a Wordcloud. 
+### How to create a model that analysis everyday the same information.
+### Remove patterns tokens that is useful
+### Create dictionaries
+
+### Locate Keywords-in-context for each candidate
+kwic = kwic(tokens, "haddad", window = 3, valuetype = c("glob", "regex", "fixed"))
+head(kwic, n = 20)
 
