@@ -12,7 +12,7 @@ setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
 
 terms = c("bolsonaro","alckmin", "Boulos")
 
-tweets = searchTwitter("haddad",n=3000,lang="pt",resultType = "recent")
+tweets = searchTwitter("bolsonaro",n=3000,lang="pt",resultType = "recent")
 
 ### Convert Data Frame
 tweets_df = twListToDF(tweets)
@@ -46,10 +46,14 @@ tokens = tokens(tokens, what = "word",
                 remove_symbols = TRUE, remove_hyphens = TRUE,
                 remove_twitter = TRUE, remove_url = TRUE)
 
-tokens = tokens_select(tokens, stopwords("portuguese"),
+tokens = tokens_select(tokens, stopwords("pt"),
                        selection = "remove")
 
 tokens = tokens_select(tokens, c("lol", "rt"), selection = "remove", padding = FALSE)
+
+stop_words = readLines("./data/stopwords_ptbr.txt")
+
+tokens = tokens_select(tokens, stop_words, selection = "remove", padding = FALSE)
 
 ### Insert news columns with Tokens and clean texts "https://docs.quanteda.io/reference/as.tokens.html"
 df$tokens = as.list(tokens)
@@ -66,21 +70,36 @@ names(users) = names_users
 df = left_join(df, users, by = "idvector")
 df = df[,-c(10:12)]
 
-### Create a dfm and a N-gram to this text
-tokens_ngr = tokens_ngrams(tokens, n = 1:3)
+### Create a N-gram to this text
+tokens_ngr = tokens_ngrams(tokens, n = 2:3)
+### Plot a N-gram File
+
+### Create a DFM
 dfm = dfm(tokens_ngr, tolower = TRUE, stem = FALSE)
-dfm = convert(dfm, to = "data.frame")
+### Plot a Word Frequencies in DFM
+topfeatures(dfm, 50)
 
 ### Identify and score multi-word expressions, or adjacent fixed-length collocations, from text.
 collocation = textstat_collocations(tokens, size = 5, tolower = FALSE)
 head(collocation, 10)
 
-### Create a Wordcloud. 
 ### How to create a model that analysis everyday the same information.
 ### Remove patterns tokens that is useful
 ### Create dictionaries
 
+### Construct a Textplot Network
+dfm_= dfm(tokens, tolower = TRUE, stem = FALSE, ngrams = 1, remove = c(stop_words, "pt"))
+fcm = fcm(dfm_)
+feat = names(topfeatures(fcm, 50))
+fcm = fcm_select(fcm, feat)
+
+size = log(colSums(dfm_select(dfm_, feat)))
+textplot_network(fcm, min_freq = 0.8, vertex_size = size / max(size) * 3)
+
+### Create a Wordcloud
+textplot_wordcloud(dfm_, max_words = 30)
+
 ### Locate Keywords-in-context for each candidate
-kwic = kwic(tokens, "haddad", window = 3, valuetype = c("glob", "regex", "fixed"))
+kwic = kwic(tokens, "bolsonaro", window = 3)
 head(kwic, n = 20)
 
