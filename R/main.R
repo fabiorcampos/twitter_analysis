@@ -9,9 +9,7 @@ library(stringr)
 setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
 
 ### Search on Twitter
-
 terms = c("bolsonaro","alckmin", "Boulos")
-
 tweets = searchTwitter("bolsonaro",n=3000,lang="pt",resultType = "recent")
 
 ### Convert Data Frame
@@ -72,10 +70,19 @@ df = df[,-c(10:12)]
 
 ### Create a N-gram to this text
 tokens_ngr = tokens_ngrams(tokens, n = 2:3)
+
 ### Plot a N-gram File
 
 ### Create a DFM
 dfm = dfm(tokens_ngr, tolower = TRUE, stem = FALSE)
+
+### Similarity and distance computation between documents or features
+dfm_dist = textstat_dist(dfm, selection = NULL, margin = c("documents", "features"),
+              method = "euclidean", upper = FALSE, diag = FALSE, p = 2)
+
+dfm_simil = textstat_simil(dfm, selection = NULL, margin = c("documents", "features"),
+               method = "correlation", upper = FALSE, diag = FALSE)
+
 ### Plot a Word Frequencies in DFM
 topfeatures(dfm, 50)
 
@@ -102,4 +109,18 @@ textplot_wordcloud(dfm_, max_words = 30)
 ### Locate Keywords-in-context for each candidate
 kwic = kwic(tokens, "bolsonaro", window = 3)
 head(kwic, n = 20)
+
+### Textstat frequencies of dfm and dfm_
+text_dfm_ngram = textstat_frequency(dfm, n = 30)
+text_dfm_ = textstat_frequency(dfm_, n = 30)
+
+ggplot(text_dfm_ngram[1:20, ], aes(x = reorder(feature, frequency), y = frequency)) +
+  geom_point() +
+  coord_flip() +
+  labs(x = NULL, y = "Frequency")
+
+ggplot(text_dfm_[1:20, ], aes(x = reorder(feature, frequency), y = frequency)) +
+  geom_point() +
+  coord_flip() +
+  labs(x = NULL, y = "Frequency")
 
