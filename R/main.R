@@ -10,7 +10,7 @@ setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
 
 ### Search on Twitter
 terms = c("bolsonaro","alckmin", "Boulos")
-tweets = searchTwitter("bolsonaro",n=3000,lang="pt",resultType = "recent")
+tweets = searchTwitter("lula",n=3000,lang="pt",resultType = "recent")
 
 ### Convert Data Frame
 tweets_df = twListToDF(tweets)
@@ -29,13 +29,13 @@ barplot_retweet = barplot(table(df$isRetweet), main = "Retweeted", ylab = "Quant
 
 table(df$isRetweet)
 
-### Top 10 Retweets
-top10 = top_n(df, 10, retweetCount)
-top10
-
 ### Remove duplicated rows that is retweet count
 table(duplicated(df$text))
 df = df[!duplicated(df$text),]
+
+### Top 10 Retweets
+top10 = top_n(df, 10, retweetCount)
+top10
 
 ### Create Tokens and Clean data
 tokens = df$text 
@@ -49,7 +49,7 @@ tokens = tokens_select(tokens, stopwords("pt"),
 
 tokens = tokens_select(tokens, c("lol", "rt"), selection = "remove", padding = FALSE)
 
-stop_words = readLines("./data/stopwords_ptbr.txt")
+stop_words = readLines("./data/stopwords_ptbr.txt", skipNul = TRUE, encoding = "UTF-8")
 
 tokens = tokens_select(tokens, stop_words, selection = "remove", padding = FALSE)
 
@@ -68,13 +68,8 @@ names(users) = names_users
 df = left_join(df, users, by = "idvector")
 df = df[,-c(10:12)]
 
-### Create a N-gram to this text
-tokens_ngr = tokens_ngrams(tokens, n = 2:3)
-
-### Plot a N-gram File
-
 ### Create a DFM
-dfm = dfm(tokens_ngr, tolower = TRUE, stem = FALSE)
+dfm = dfm(tokens, remove = stop_words, tolower = TRUE, stem = FALSE, ngrams = 2:3)
 
 ### Similarity and distance computation between documents or features
 dfm_dist = textstat_dist(dfm, selection = NULL, margin = c("documents", "features"),
@@ -91,8 +86,6 @@ collocation = textstat_collocations(tokens, size = 5, tolower = FALSE)
 head(collocation, 10)
 
 ### How to create a model that analysis everyday the same information.
-### Remove patterns tokens that is useful
-### Create dictionaries
 
 ### Construct a Textplot Network
 dfm_= dfm(tokens, tolower = TRUE, stem = FALSE, ngrams = 1, remove = c(stop_words, "pt"))
